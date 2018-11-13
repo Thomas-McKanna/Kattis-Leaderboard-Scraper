@@ -3,52 +3,47 @@ from html.parser import HTMLParser
 from lxml import etree
 from io import StringIO
 
+# Open name.txt file for reading
+f = open('names.txt', 'r')
+commaList = f.read()
+usernames = [username.strip() for username in commaList.split(',')]
+
+# Connect to Kattis website
 conn = http.client.HTTPSConnection("www.kattis.com", 443)
-conn.request("GET", "https://open.kattis.com/universities/mst.edu")
-response = conn.getresponse()
 
-data = str(response.read())
+nameAndScore = []
 
-decodedData = bytes(data, "utf-8").decode("unicode_escape") 
+for username in usernames:
+    conn.request("GET", "https://open.kattis.com/users/" + username)
+    response = conn.getresponse()
+    
+    data = str(response.read())
 
-decodedString = str(decodedData)
+    decodedData = bytes(data, "utf-8").decode("unicode_escape") 
 
-parser = etree.HTMLParser()
+    decodedString = str(decodedData)
 
-tree   = etree.parse(StringIO(decodedString), parser)
+    parser = etree.HTMLParser()
 
-root = tree.getroot()
+    tree   = etree.parse(StringIO(decodedString), parser)
 
-names = []
-scores = {}
+    root = tree.getroot()
 
-# Scraping the names
-NAME_SKIP = 13
-NAME_OFFSET = 5
-iter = 0
-for element in root.iter("a"):
-    if (iter < NAME_SKIP):
-        pass
-    else:
-        if type(element.text) is str:
-            split_name = element.text.split(' ')
-            if len(split_name) > 1 and split_name[0] != "United" and split_name[0] != "Support":
-                names.append(' '.join(split_name))
-    iter += 1
+    for element in root.iter("h1"):
+        name = element.text
 
-# Scraping the scores
-SCORE_SKIP = 4
-SCORE_OFFSET = 4
-iter = 0
-count = 0
-for element in root.iter("td"):
-    if (iter < SCORE_SKIP):
-        pass
-    else:
-        if ((iter - SCORE_SKIP + 1) % SCORE_OFFSET == 0):
-            scores[names[count]] = element.text
-            count += 1
-    iter += 1
+    td = [element.text for element in root.iter("td")]
 
-for name in names:
-    print(name, ':', scores[name])
+    nameAndScore.append((name.strip(), td[-1]))
+
+    """
+    for element in root.iter():
+        print(element.tag, " ", element.text)
+
+    print(username)
+    input()
+    """
+
+nameAndScore = sorted(nameAndScore, key=lambda kv: float(kv[1]), reverse = True)
+for x in nameAndScore:
+    print(x[0], ": ", x[1])
