@@ -2,6 +2,7 @@ import http.client
 from html.parser import HTMLParser
 from lxml import etree
 from io import StringIO
+from yattag import Doc
 
 # Open name.txt file for reading
 f = open('names.txt', 'r')
@@ -45,5 +46,40 @@ for username in usernames:
     """
 
 nameAndScore = sorted(nameAndScore, key=lambda kv: float(kv[1]), reverse = True)
-for x in nameAndScore:
-    print(x[0], ": ", x[1])
+
+doc, tag, text, line = Doc().ttl()
+
+# for alternating between line color
+iter = 0
+
+with tag('html'):
+    with tag('head'):
+        with tag('title'):
+            text("Kattis Scores")
+        doc.stag('link', rel="stylesheet", href="styles.css")
+    with tag('body'):
+        with tag('div', klass="datagrid"):
+            with tag('table'):
+                with tag('thead'):
+                    with tag('tr'):
+                        for s in ("Name", "Score"):
+                            with tag('th'):
+                                text(s)
+                
+                with tag('tbody'):
+                    for person in nameAndScore:
+                        if iter % 2 == 0:
+                            with tag('tr'):
+                                for d in (person[0], person[1]):
+                                    with tag('td'):
+                                        text(d)
+                        else:
+                            with tag('tr', klass="alt"):
+                                for d in (person[0], person[1]):
+                                    with tag('td'):
+                                        text(d)
+                        iter += 1
+
+print("<!DOCTYPE html>")
+print(doc.getvalue())
+
