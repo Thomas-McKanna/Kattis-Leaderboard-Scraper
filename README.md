@@ -22,6 +22,8 @@ Then just run the script with
 ```
 python3 scraper.py
 ```
+
+**After you run the script, an html file will be created called `output.html`. Open it in a web browser to see the table.**
   
 ## Meaning of Status Symbols:
 
