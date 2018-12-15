@@ -6,10 +6,10 @@ Gathers select users scores from Kattis and presents them in an HTML table. It a
 
 You will likely need to install some python packages to get the script running (you can see requirments.txt for a list). The commands you need to copy and paste in the terminal are as follows:
 
-'''
+```
 python3 -m pip install lxml
 python3 -m pip install yattag
-'''
+```
 
 ## How to Use:
 
