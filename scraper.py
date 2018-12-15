@@ -5,15 +5,16 @@ from io import StringIO
 from yattag import Doc
 
 # Open name.txt file for reading
-f = open('names.txt', 'r')
-commaList = f.read()
-usernames = [username.strip() for username in commaList.split(',')]
+with open('names.txt', 'r') as f:
+    commaList = f.read()
+    usernames = [username.strip() for username in commaList.split(',')]
 
 # Connect to Kattis website
 conn = http.client.HTTPSConnection("www.kattis.com", 443)
 
 nameAndScore = []
 
+# Get everyone's scores
 for username in usernames:
     conn.request("GET", "https://open.kattis.com/users/" + username)
     response = conn.getresponse()
@@ -37,21 +38,30 @@ for username in usernames:
 
     nameAndScore.append((name.strip(), td[-1]))
 
-    """
-    for element in root.iter():
-        print(element.tag, " ", element.text)
-
-    print(username)
-    input()
-    """
-
+# Sort by highest score
 nameAndScore = sorted(nameAndScore, key=lambda kv: float(kv[1]), reverse = True)
+
+# Load in previous scores for comparison
+prevNameToScoreAndPos = {}
+isPrev = True
+try:
+    with open('prev_scores.txt', 'r') as f:
+        curr_row = f.readline()
+        while (curr_row != ''):
+            curr_row = curr_row[:-1] # remove newline
+            curr_row_split = curr_row.split(',')
+            prevNameToScoreAndPos[curr_row_split[1]] = (curr_row_split[0], curr_row_split[2])
+            curr_row = f.readline()
+except:
+    isPrev = False
+
 
 doc, tag, text, line = Doc().ttl()
 
-# for alternating between line color
+# For alternating between line color
 iter = 0
 
+# Generate html table
 with tag('html'):
     with tag('head'):
         with tag('title'):
@@ -62,24 +72,46 @@ with tag('html'):
             with tag('table'):
                 with tag('thead'):
                     with tag('tr'):
-                        for s in ("Name", "Score"):
+                        for s in ("Position", "Name", "Score", "Status"):
                             with tag('th'):
                                 text(s)
                 
                 with tag('tbody'):
-                    for person in nameAndScore:
-                        if iter % 2 == 0:
-                            with tag('tr'):
-                                for d in (person[0], person[1]):
-                                    with tag('td'):
-                                        text(d)
-                        else:
-                            with tag('tr', klass="alt"):
-                                for d in (person[0], person[1]):
-                                    with tag('td'):
-                                        text(d)
+                    for person in nameAndScore:  
+                        with tag('tr') if iter % 2 == 0 else tag('tr', klass="alt"):
+                            with tag('td'):
+                                text(iter + 1)
+                            with tag('td'):
+                                text(person[0])
+                            with tag('td'):
+                                text(person[1])
+                            with tag('td'):
+                                # Check to see if the person has moves up or down in list
+                                # or has earned more than 10 points since last run
+                                if isPrev:
+                                    try:
+                                        if int(prevNameToScoreAndPos[person[0]][0]) > nameAndScore.index(person) + 1:
+                                            doc.stag('img', src="green_up_arrow.png", height="25")
+                                        elif int(prevNameToScoreAndPos[person[0]][0]) < nameAndScore.index(person) + 1:
+                                            doc.stag('img', src="red_down_arrow.png", height="25")
+                                        elif float(prevNameToScoreAndPos[person[0]][1]) < float(person[1]):
+                                            doc.stag('img', src="green_circle.png", height="17")
+                                        elif float(prevNameToScoreAndPos[person[0]][1]) == float(person[1]):
+                                            doc.stag('img', src="yellow_circle.png", height="25")
+
+                                        if float(prevNameToScoreAndPos[person[0]][1]) <= float(person[1]) - 10:
+                                            doc.stag('img', src="fire.png", height="25")
+                                    except:
+                                        print("Error with the previous scores files. It has been overwritten with "
+                                        "newest values. Please run the progam again.")
                         iter += 1
 
-print("<!DOCTYPE html>")
-print(doc.getvalue())
+with open('output.html', 'w') as f:
+    f.write("<!DOCTYPE html>" + doc.getvalue())
 
+# Record scores for next time
+iter = 1
+with open('prev_scores.txt', 'w') as f:
+    for person in nameAndScore:
+        f.write(str(iter) + ',' + str(person[0]) + ',' + str(person[1]) + '\n')
+        iter += 1
