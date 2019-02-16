@@ -18,10 +18,10 @@ nameAndScore = []
 for username in usernames:
     conn.request("GET", "https://open.kattis.com/users/" + username)
     response = conn.getresponse()
-    
+
     data = str(response.read())
 
-    decodedData = bytes(data, "utf-8").decode("unicode_escape") 
+    decodedData = bytes(data, "utf-8").decode("unicode_escape")
 
     decodedString = str(decodedData)
 
@@ -75,9 +75,9 @@ with tag('html'):
                         for s in ("Position", "Name", "Score", "Status"):
                             with tag('th'):
                                 text(s)
-                
+
                 with tag('tbody'):
-                    for person in nameAndScore:  
+                    for person in nameAndScore:
                         with tag('tr') if iter % 2 == 0 else tag('tr', klass="alt"):
                             with tag('td'):
                                 text(iter + 1)
@@ -91,16 +91,16 @@ with tag('html'):
                                 if isPrev:
                                     try:
                                         if int(prevNameToScoreAndPos[person[0]][0]) > nameAndScore.index(person) + 1:
-                                            doc.stag('img', src="green_up_arrow.png", height="25")
+                                            doc.stag('img', src="assets/img/green_up_arrow.png", height="25")
                                         elif int(prevNameToScoreAndPos[person[0]][0]) < nameAndScore.index(person) + 1:
-                                            doc.stag('img', src="red_down_arrow.png", height="25")
+                                            doc.stag('img', src="assets/img/red_down_arrow.png", height="25")
                                         elif float(prevNameToScoreAndPos[person[0]][1]) < float(person[1]):
-                                            doc.stag('img', src="green_circle.png", height="17")
+                                            doc.stag('img', src="assets/img/green_circle.png", height="17")
                                         elif float(prevNameToScoreAndPos[person[0]][1]) == float(person[1]):
-                                            doc.stag('img', src="yellow_circle.png", height="25")
+                                            doc.stag('img', src="assets/img/yellow_circle.png", height="25")
 
                                         if float(prevNameToScoreAndPos[person[0]][1]) <= float(person[1]) - 10:
-                                            doc.stag('img', src="fire.png", height="25")
+                                            doc.stag('img', src="assets/fire.png", height="25")
                                     except:
                                         print("Error with the previous scores files. It has been overwritten with "
                                         "newest values. Please run the progam again.")

@@ -1,0 +1,12 @@
+1,Thomas McKanna,259.9
+2,Mitchell Skaggs,206.3
+3,Adam Sawyer,84.9
+4,Jack Manhardt,69.4
+5,Emanuel Huffman,31.9
+6,Thomas Gleiforst,28.3
+7,Joseph Lewis,11.5
+8,Saiteja Konda,11.2
+9,Brandon Ames,7.5
+10,Wyatt Robbins,6.4
+11,Steven Alexander Jacobs,5.6
+12,Cole Dieckhaus,3.6
